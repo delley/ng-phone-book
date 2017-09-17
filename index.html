@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="lib/bootstrap/bootstrap.css">
     <style>
       .jumbotron {
-        width: 400px;
+        width: 600px;
         text-align: center;
         margin-top: 20px;
         margin-left: auto;
@@ -39,9 +39,9 @@
       angular.module('phoneBook').controller('phoneBookCtrl', function ($scope) {
         $scope.app = 'Phone Book';
         $scope.contacts = [
-          {name: "Pedro", phone: "99998888", color: "blue"},
-          {name: "Ana", phone: "99998877", color: "yellow"},
-          {name: "Maria", phone: "99998866", color: "red"}
+          {name: "Pedro", phone: "99998888", date: new Date(), operator: {name: "Oi", id: 14, category: 'Mobile'}, color: "yellow"},
+          {name: "Ana", phone: "99998877", date: new Date(), operator: {name: "Vivo", id: 15, category: 'Mobile'}, color: "purple"},
+          {name: "Maria", phone: "99998866", date: new Date(), operator: {name: "Tim", id: 41, category: 'Mobile'}, color: "blue"}
         ];
 
         $scope.operators = [
@@ -75,6 +75,7 @@
   <body ng-controller="phoneBookCtrl">
     <div class="jumbotron">
       <h3>{{ app }}</h3>
+      <input class="form-control" type="text" ng-model="search" placeholder="What are you looking for?">
       <table ng-show="contacts.length > 0" class="table">
         <thead>
           <tr>
@@ -82,18 +83,18 @@
             <th>Name</th>
             <th>Phone</th>
             <th>Operator</th>
+            <th>Date</th>
             <th></th>
           </tr>
         </thead>
         <tbody>
-          <tr ng-class="{'selected bold': contact.selected}" ng-repeat="contact in contacts">
+          <tr ng-class="{'selected bold': contact.selected}" ng-repeat="contact in contacts | filter:search | orderBy:'name':true">
             <td><input type="checkbox" ng-model="contact.selected" /></td>
-            <td>{{ contact.name }}</td>
+            <td>{{ contact.name | uppercase }}</td>
             <td>{{ contact.phone }}</td>
-            <td>{{ contact.operator.name }}</td>
-            <td><div style="width: 20px; height: 20px" ng-style="{'background-color': contact.color}">
-
-            </div></td>
+            <td>{{ contact.operator.name | lowercase }}</td>
+            <td>{{ contact.date | date:'dd/MM/yyyy HH:mm' }}</td>
+            <td><div style="width: 20px; height: 20px" ng-style="{'background-color': contact.color}"></div></td>
           </tr>
         </tbody>
       </table>
@@ -105,19 +106,19 @@
           <option value="">Select an operator</option>
         </select>
       </form>
-      <div ng-messages="contactForm.name.$error" class="alert alert-danger">
-        <div ng-message="required" >
-          Por favor, preencha o campo nome!
+      <div ng-show="contactForm.name.$dirty"  ng-messages="contactForm.name.$error">
+        <div ng-message="required" class="alert alert-danger">
+          The name field is required!
         </div>
-        <div ng-show="minlength">
-          O campo nome deve ter no mínimo 10 caracteres.
+        <div ng-message="minlength" class="alert alert-danger">
+          The name field must be at least 5 characters.
         </div>
       </div>
       <div ng-show="contactForm.phone.$error.required && contactForm.phone.$dirty" class="alert alert-danger">
-        Por favor, preencha o campo telefone!
+        The phone field is required!
       </div>
       <div ng-show="contactForm.phone.$error.pattern" class="alert alert-danger">
-        O campo telefone deve ter o formato [9]9999-9999
+        Please enter a number in the format [9]9999-9999
       </div>
       <button class="btn btn-primary btn-block" ng-click="addContact(contact)" ng-disabled="contactForm.$invalid">Add contact</button>
       <button class="btn btn-danger btn-block" ng-click="removeContact(contacts)" ng-if="isSelectedContact(contacts)">Remove contact</button>
